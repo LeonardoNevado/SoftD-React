@@ -1,0 +1,16 @@
+Neste Projeto criado para o teste da SoftDesign estarei utilizando a base de um projeto antigo a qual uso das seguintes tecnologias
+
+- React
+- Node.Js
+- Express (Framework)
+- Mongoose (ODM)
+- cors (correlacionar Front e Back)
+- dotenv (Gerenciamento de variaveis)
+- nodemon (Reboota o server automaticamente durante o desenvolvimento)
+  O código original foi feito para a criaçao de um Mock de uma Loja feito justamente para meu aprendizado destas tecnologias
+
+Estarei fazendo uso das seguintes Ferramentas
+
+- Insomnia (Testar o Backend CRUD)
+- Tabnine (Automatizar comentarios no codigo)
+- Copilot (Revisão e Debug do código)
