@@ -1,4 +1,4 @@
-const { mockBooks, mockRentals } = require('../data/mockData');
+const { mockBooks, mockRentals } = require('../Data/mockData');
 
 // Simular banco de dados em memória (importar das mesmas variáveis do bookController)
 let books = [...mockBooks];
@@ -14,7 +14,7 @@ const rentBook = async (req, res) => {
     }
     
     // Encontrar o livro
-    const bookIndex = books.findIndex(b => b._id === bookId);
+    const bookIndex = books.findIndex(b => b.id === bookId);
     if (bookIndex === -1) {
       return res.status(404).json({ message: 'Livro não encontrado' });
     }
@@ -26,7 +26,7 @@ const rentBook = async (req, res) => {
     
     // Criar aluguel
     const newRental = {
-      _id: new Date().getTime().toString(),
+      id: new Date().getTime().toString(),
       userId,
       bookId,
       rentalDate: new Date(),
@@ -56,7 +56,7 @@ const returnBook = async (req, res) => {
     const { rentalId } = req.params;
     
     // Encontrar o aluguel
-    const rentalIndex = rentals.findIndex(r => r._id === rentalId);
+    const rentalIndex = rentals.findIndex(r => r.id === rentalId);
     if (rentalIndex === -1) {
       return res.status(404).json({ message: 'Aluguel não encontrado' });
     }
@@ -72,7 +72,7 @@ const returnBook = async (req, res) => {
     rentals[rentalIndex].status = 'returned';
     
     // Tornar o livro disponível novamente
-    const bookIndex = books.findIndex(b => b._id === rental.bookId);
+    const bookIndex = books.findIndex(b => b.id === rental.bookId);
     if (bookIndex !== -1) {
       books[bookIndex].available = true;
     }
@@ -95,7 +95,7 @@ const getUserRentals = async (req, res) => {
     const userRentals = rentals
       .filter(r => r.userId === userId)
       .map(rental => {
-        const book = books.find(b => b._id === rental.bookId);
+        const book = books.find(b => b.id === rental.bookId);
         return {
           ...rental,
           book

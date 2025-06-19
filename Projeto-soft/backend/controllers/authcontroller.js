@@ -1,4 +1,4 @@
-const { mockUsers } = require('../data/mockData');
+const { mockUsers } = require('../Data/mockData');
 
 const login = async (req, res) => {
   try {
@@ -22,7 +22,7 @@ const login = async (req, res) => {
 
     // Retornar dados do usuário (sem a senha)
     const userResponse = {
-      id: user._id,
+      id: user.id,
       email: user.email,
       name: user.name
     };

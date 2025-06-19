@@ -1,4 +1,4 @@
-const { mockBooks, mockRentals } = require('../data/mockData');
+const { mockBooks, mockRentals } = require('../Data/mockData');
 
 // Simular banco de dados em memória
 let books = [...mockBooks];
@@ -28,7 +28,7 @@ const getAllBooks = async (req, res) => {
 // Buscar livro por ID
 const getBookById = async (req, res) => {
   try {
-    const book = books.find(b => b._id === req.params.id);
+    const book = books.find(b => b.id === req.params.id);
     
     if (!book) {
       return res.status(404).json({ message: 'Livro não encontrado' });
@@ -56,7 +56,7 @@ const createBook = async (req, res) => {
     }
     
     const newBook = {
-      _id: new Date().getTime().toString(),
+      id: new Date().getTime().toString(),
       title,
       author,
       description,
@@ -77,7 +77,7 @@ const createBook = async (req, res) => {
 // Atualizar livro
 const updateBook = async (req, res) => {
   try {
-    const bookIndex = books.findIndex(b => b._id === req.params.id);
+    const bookIndex = books.findIndex(b => b.id === req.params.id);
     
     if (bookIndex === -1) {
       return res.status(404).json({ message: 'Livro não encontrado' });
@@ -101,7 +101,7 @@ const updateBook = async (req, res) => {
 // Deletar livro
 const deleteBook = async (req, res) => {
   try {
-    const bookIndex = books.findIndex(b => b._id === req.params.id);
+    const bookIndex = books.findIndex(b => b.id === req.params.id);
     
     if (bookIndex === -1) {
       return res.status(404).json({ message: 'Livro não encontrado' });
