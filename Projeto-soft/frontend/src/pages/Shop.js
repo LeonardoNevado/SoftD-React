@@ -1,27 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { bookService, rentalService } from '../services/api';
-import './Shop.css';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { bookService, rentalService } from "../services/api";
+import "./Shop.css";
 
 const Shop = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   // Estados
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedBook, setSelectedBook] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [rentingBook, setRentingBook] = useState(null);
-  const [userRentals, setUserRentals] = useState([]);
 
   // Carrega os livros na inicialização
   useEffect(() => {
     loadBooks();
-    loadUserRentals();
   }, []);
 
   const loadBooks = async () => {
@@ -30,21 +28,10 @@ const Shop = () => {
       const response = await bookService.getAll(searchTerm);
       setBooks(response.data || []);
     } catch (err) {
-      setError('Erro ao carregar livros');
-      console.error('Erro ao carregar livros:', err);
+      setError("Erro ao carregar livros");
+      console.error("Erro ao carregar livros:", err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadUserRentals = async () => {
-    try {
-      if (user?.id) {
-        const response = await rentalService.getUserRentals(user.id);
-        setUserRentals(response.data || []);
-      }
-    } catch (err) {
-      console.error('Erro ao carregar aluguéis:', err);
     }
   };
 
@@ -59,62 +46,50 @@ const Shop = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   const handleRentBook = async (book) => {
     if (rentingBook || book.isRented) return;
-    
+
     // Validação dos dados antes de enviar
     if (!user?.id) {
-      alert('Erro: Usuário não identificado. Faça login novamente.');
+      alert("Erro: Usuário não identificado. Faça login novamente.");
       return;
     }
-    
+
     if (!book?.id) {
-      alert('Erro: Livro não identificado.');
+      alert("Erro: Livro não identificado.");
       return;
     }
-    
+
     try {
       setRentingBook(book.id);
-      
+
       const rentalData = {
         userId: user.id,
         bookId: book.id,
         rentalDate: new Date().toISOString(),
-        returnDate: null
+        returnDate: null,
       };
 
-      console.log('Dados enviados para aluguel:', rentalData); // Debug
-      
+      console.log("Dados enviados para aluguel:", rentalData); // Debug
+
       await rentalService.rent(rentalData);
-      
-      // Atualiza a lista de livros e aluguéis
+
+      // Atualiza a lista de livros
       await loadBooks();
-      await loadUserRentals();
-      
+
       alert(`Livro "${book.title}" alugado com sucesso!`);
     } catch (err) {
-      console.error('Erro completo:', err); // Debug mais detalhado
-      const errorMessage = err.response?.data?.message || 
-                          err.response?.data?.error || 
-                          'Erro ao alugar livro. Tente novamente.';
+      console.error("Erro completo:", err); // Debug mais detalhado
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Erro ao alugar livro. Tente novamente.";
       alert(errorMessage);
     } finally {
       setRentingBook(null);
-    }
-  };
-
-  const handleReturnBook = async (rentalId) => {
-    try {
-      await rentalService.return(rentalId);
-      await loadBooks();
-      await loadUserRentals();
-      alert('Livro devolvido com sucesso!');
-    } catch (err) {
-      alert(err.response?.data?.message || 'Erro ao devolver livro');
-      console.error('Erro ao devolver livro:', err);
     }
   };
 
@@ -126,16 +101,6 @@ const Shop = () => {
   const closeModal = () => {
     setShowModal(false);
     setSelectedBook(null);
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
-  };
-
-  const isBookRentedByUser = (bookId) => {
-    return userRentals.some(rental => 
-      rental.bookId === bookId && !rental.returnDate
-    );
   };
 
   if (loading) {
@@ -176,44 +141,21 @@ const Shop = () => {
       </div>
 
       {/* Mensagem de erro */}
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
-
-      {/* Seção de Meus Aluguéis */}
-      {userRentals.length > 0 && (
-        <section className="my-rentals-section">
-          <h2>📖 Meus Aluguéis</h2>
-          <div className="rentals-grid">
-            {userRentals.filter(rental => !rental.returnDate).map(rental => (
-              <div key={rental.id} className="rental-card">
-                <h3>{rental.book?.title}</h3>
-                <p>Alugado em: {formatDate(rental.rentalDate)}</p>
-                <button
-                  onClick={() => handleReturnBook(rental.id)}
-                  className="return-btn"
-                >
-                  Devolver
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {error && <div className="error-message">{error}</div>}
 
       {/* Grid de livros */}
       <section className="books-section">
         <h2>📚 Livros Disponíveis</h2>
-        
+
         {books.length === 0 ? (
           <div className="no-books">
-            {searchTerm ? 'Nenhum livro encontrado para sua busca.' : 'Nenhum livro disponível.'}
+            {searchTerm
+              ? "Nenhum livro encontrado para sua busca."
+              : "Nenhum livro disponível."}
           </div>
         ) : (
           <div className="books-grid">
-            {books.map(book => (
+            {books.map((book) => (
               <div key={book.id} className="book-card">
                 <div className="book-image">
                   {book.coverImage ? (
@@ -222,17 +164,17 @@ const Shop = () => {
                     <div className="placeholder-image">📖</div>
                   )}
                 </div>
-                
+
                 <div className="book-info">
                   <h3 className="book-title">{book.title}</h3>
                   <p className="book-author">por {book.author}</p>
                   <p className="book-genre">{book.genre}</p>
-                  
+
                   {book.isRented && (
                     <span className="rented-badge">Alugado</span>
                   )}
                 </div>
-                
+
                 <div className="book-actions">
                   <button
                     onClick={() => openBookDetails(book)}
@@ -240,15 +182,17 @@ const Shop = () => {
                   >
                     ℹ️ Detalhes
                   </button>
-                  
+
                   <button
                     onClick={() => handleRentBook(book)}
-                    disabled={book.isRented || rentingBook === book.id || isBookRentedByUser(book.id)}
-                    className={`rent-btn ${book.isRented || isBookRentedByUser(book.id) ? 'disabled' : ''}`}
+                    disabled={book.isRented || rentingBook === book.id}
+                    className={`rent-btn ${book.isRented ? "disabled" : ""}`}
                   >
-                    {rentingBook === book.id ? 'Alugando...' : 
-                     isBookRentedByUser(book.id) ? 'Já alugado por você' :
-                     book.isRented ? 'Indisponível' : '📚 Alugar'}
+                    {rentingBook === book.id
+                      ? "Alugando..."
+                      : book.isRented
+                      ? "Indisponível"
+                      : "📚 Alugar"}
                   </button>
                 </div>
               </div>
@@ -263,31 +207,53 @@ const Shop = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{selectedBook.title}</h2>
-              <button onClick={closeModal} className="close-btn">×</button>
+              <button onClick={closeModal} className="close-btn">
+                ×
+              </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="book-details">
                 <div className="detail-image">
                   {selectedBook.coverImage ? (
-                    <img src={selectedBook.coverImage} alt={selectedBook.title} />
+                    <img
+                      src={selectedBook.coverImage}
+                      alt={selectedBook.title}
+                    />
                   ) : (
                     <div className="placeholder-image-large">📖</div>
                   )}
                 </div>
-                
+
                 <div className="detail-info">
-                  <p><strong>Autor:</strong> {selectedBook.author}</p>
-                  <p><strong>Gênero:</strong> {selectedBook.genre}</p>
-                  <p><strong>Ano:</strong> {selectedBook.year}</p>
-                  <p><strong>Páginas:</strong> {selectedBook.pages}</p>
-                  <p><strong>ISBN:</strong> {selectedBook.isbn}</p>
-                  <p><strong>Status:</strong> 
-                    <span className={selectedBook.isRented ? 'status-rented' : 'status-available'}>
-                      {selectedBook.isRented ? ' Alugado' : ' Disponível'}
+                  <p>
+                    <strong>Autor:</strong> {selectedBook.author}
+                  </p>
+                  <p>
+                    <strong>Gênero:</strong> {selectedBook.genre}
+                  </p>
+                  <p>
+                    <strong>Ano:</strong> {selectedBook.year}
+                  </p>
+                  <p>
+                    <strong>Páginas:</strong> {selectedBook.pages}
+                  </p>
+                  <p>
+                    <strong>ISBN:</strong> {selectedBook.isbn}
+                  </p>
+                  <p>
+                    <strong>Status:</strong>
+                    <span
+                      className={
+                        selectedBook.isRented
+                          ? "status-rented"
+                          : "status-available"
+                      }
+                    >
+                      {selectedBook.isRented ? " Alugado" : " Disponível"}
                     </span>
                   </p>
-                  
+
                   {selectedBook.description && (
                     <div className="book-description">
                       <strong>Descrição:</strong>
@@ -297,19 +263,25 @@ const Shop = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="modal-footer">
               <button
                 onClick={() => {
                   handleRentBook(selectedBook);
                   closeModal();
                 }}
-                disabled={selectedBook.isRented || rentingBook === selectedBook.id || isBookRentedByUser(selectedBook.id)}
-                className={`rent-btn-modal ${selectedBook.isRented || isBookRentedByUser(selectedBook.id) ? 'disabled' : ''}`}
+                disabled={
+                  selectedBook.isRented || rentingBook === selectedBook.id
+                }
+                className={`rent-btn-modal ${
+                  selectedBook.isRented ? "disabled" : ""
+                }`}
               >
-                {rentingBook === selectedBook.id ? 'Alugando...' : 
-                 isBookRentedByUser(selectedBook.id) ? 'Já alugado por você' :
-                 selectedBook.isRented ? 'Indisponível' : '📚 Alugar Livro'}
+                {rentingBook === selectedBook.id
+                  ? "Alugando..."
+                  : selectedBook.isRented
+                  ? "Indisponível"
+                  : "📚 Alugar Livro"}
               </button>
             </div>
           </div>
